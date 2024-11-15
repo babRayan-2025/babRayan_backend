@@ -47,13 +47,15 @@ class UserController {
 
   async getById(req, res) {
     try {
-      const user = await this.collection.doc(req.params.id).get();
-      if (!user) return res.status(404).json({ message: 'User not found' });
+      const userDoc = await this.collection.doc(req.params.id).get();
+
+      if (!userDoc.exists) return res.status(404).json({ message: 'User not found' });
+
+      const userData = userDoc.data(); // Get the document data
       return res.status(200).json({
         status: true,
-        data: { id: user.id, ...user.data() },
+        data: { id: userDoc.id, ...userData }, // Add the user ID along with the document data
       });
-
 
     } catch (error) {
       return res.status(500).json({
@@ -63,6 +65,7 @@ class UserController {
       });
     }
   }
+
 
   async update(req, res) {
     try {

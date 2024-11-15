@@ -2,9 +2,14 @@ const express = require('express');
 const app = express();
 const path = require('path');
 require("dotenv").config();
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
 
 app.use(express.json());
 const routes = require('./src/routes/index');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // session
 // const session = require("express-session");
