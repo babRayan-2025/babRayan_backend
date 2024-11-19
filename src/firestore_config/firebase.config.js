@@ -14,7 +14,7 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(firebaseConfig),
   });
 } else {
-  admin.app(); // Use the default app if already initialized
+  admin.app(); 
 }
 
 module.exports = admin;
