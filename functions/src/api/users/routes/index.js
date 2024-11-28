@@ -1,9 +1,12 @@
 const router = require("express").Router(); // Module pour créer un nouveau route
-const UserController = require("../controllers");
+const userController = require("../controllers");
 
-router.post("/", UserController.create);
-router.get("/user/:id", UserController.getOne);
-router.get("/", UserController.getAll);
-router.delete("/user/:id", UserController.deleteOne);
+// router.post('/', userController.create.bind(userController));
+router.get('/', userController.getAll.bind(userController));
+router.get('/:id', userController.getById.bind(userController));
+router.put('/:id', userController.update.bind(userController));
+router.delete('/:id', userController.delete.bind(userController));
+
+
 
 module.exports = router;
