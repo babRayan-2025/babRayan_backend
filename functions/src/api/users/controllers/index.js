@@ -1,66 +1,105 @@
-const FirebaseController = require("../../../utils/firebaseCrud");
-const User = require("../classes/user");
+const User = require('../../../classes/user'); // Adjust path if necessary
+const db = require('../../../config/firebase'); // Adjust path if necessary
 
 class UserController {
-  static async create(req, res) {
-    let firebaseController = new FirebaseController();
-    let users = req.body.users; // Assuming req.body.users is an array of user objects
-
-    if (!Array.isArray(users)) {
-        return res.status(400).json({ message: "Invalid input. Users should be an array." });
-    }
-
-    for (const userData of users) {
-        let user = new User();
-
-        user.setName(userData.name);
-        user.setEmail(userData.email);
-        user.setPhone(userData.phone);
-
-        await firebaseController.create("user", user);
-    }
-
-    res.json({ message: "Utilisateurs créés avec succès", users: users });
-}
-
-
-  static async getAll(req, res) {
-    let firebaseController = new FirebaseController();
-    let users = await firebaseController.getAll("user");
-
-    res.json({
-      message: "Liste des utilisateurs récupérée avec succès",
-      users: users,
-    });
+  constructor() {
+    this.collection = db.collection('users');
   }
 
-  static async getOne(req, res) {
-    let firebaseController = new FirebaseController();
-    let userId = req.params.id;
 
-    let user = await firebaseController.read("user", userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "Utilisateur non trouvé" });
-    }
-
-    res.json({ message: "Utilisateur récupéré avec succès", user: user });
-  }
-
-  static async deleteOne(req, res) {
-    let firebaseController = new FirebaseController();
-    let userId = req.params.id;
-
+  async getAll(req, res) {
     try {
-      await firebaseController.delete("user", userId);
-      res.json({ message: "Utilisateur supprimé avec succès", userId: userId });
+      const users = await this.collection.get();
+
+      const data = users.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return res.status(200).json({
+        status: true,
+        data,
+      });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la suppression de l'utilisateur" });
+      return res.status(500).json({
+        status: false,
+        message: 'Error getting users',
+        error: error.message,
+      });
+    }
+  }
+
+  async getById(req, res) {
+    try {
+      const userDoc = await this.collection.doc(req.params.id).get();
+
+      if (!userDoc.exists) {
+        return res.status(404).json({ message: 'User not found', status: false });
+      }
+
+      return res.status(200).json({
+        status: true,
+        data: { id: userDoc.id, ...userDoc.data() },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Error retrieving user',
+        status: false,
+        error: error.message,
+      });
+    }
+  }
+
+  async update(req, res) {
+    try {
+      const userRef = this.collection.doc(req.params.id);
+      const doc = await userRef.get();
+
+      if (!doc.exists) {
+        return res.status(404).json({ message: 'User not found', status: false });
+      }
+
+      const updates = { ...req.body, updatedAt: new Date() };
+      await userRef.update(updates);
+
+      const updatedUser = await userRef.get();
+
+      return res.status(200).json({
+        status: true,
+        data: { id: updatedUser.id, ...updatedUser.data() },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Error updating user',
+        status: false,
+        error: error.message,
+      });
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const userRef = this.collection.doc(req.params.id);
+      const doc = await userRef.get();
+
+      if (!doc.exists) {
+        return res.status(404).json({ message: 'User not found', status: false });
+      }
+
+      await userRef.delete();
+
+      return res.status(200).json({
+        message: 'User deleted successfully',
+        status: true,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Error deleting user',
+        status: false,
+        error: error.message,
+      });
     }
   }
 }
 
-module.exports = UserController;
+module.exports = new UserController();

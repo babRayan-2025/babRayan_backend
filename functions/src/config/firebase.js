@@ -1,10 +1,13 @@
-var admin = require("firebase-admin");
+const admin = require("firebase-admin");
+const serviceAccount = require("./admin.json");
 
-var serviceAccount = require("./admin.json");
-
+// Initialize Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://babrayanlocal-default-rtdb.europe-west1.firebasedatabase.app"
+  databaseURL: "https://babrayanlocal-default-rtdb.europe-west1.firebasedatabase.app",
 });
 
-module.exports = admin;
+// Export Firestore instance
+const db = admin.firestore();
+
+module.exports = db; // Export Firestore instance
