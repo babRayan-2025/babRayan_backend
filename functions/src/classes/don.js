@@ -1,12 +1,14 @@
 class Don {
     constructor(data) {
         this.id = data.id;
-        this.userId = data.userId; // User ID of the donor
-        this.montant = data.montant; // Donation amount
-        this.typeDon = data.typeDon; // Type of donation
-        this.donateurAnonyme = data.donateurAnonyme; // Anonymous donor
-        this.userInfo = data.userInfo || []; 
-        this.paymentMethod = data.paymentMethod; // Method of payment
+        this.userId = data.userId;
+        this.montant = data.montant;
+        this.typeDon = data.typeDon;
+        this.donateurAnonyme = data.donateurAnonyme;
+        this.userInfo = data.userInfo || [];
+        this.paymentMethod = data.paymentMethod;
+        this.status = data.status || 'pending'; // Status: pending, paid, failed
+        this.transactionId = data.transactionId || null; // Transaction ID from CMI
         this.createdAt = data.createdAt || new Date();
         this.updatedAt = data.updatedAt || new Date();
     }
@@ -19,6 +21,8 @@ class Don {
             donateurAnonyme: this.donateurAnonyme,
             userInfo: this.userInfo,
             paymentMethod: this.paymentMethod,
+            status: this.status,
+            transactionId: this.transactionId,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };

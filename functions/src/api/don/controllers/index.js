@@ -1,5 +1,6 @@
 const Don = require('../../../classes/don');
 const db = require('../../../config/firebase');
+const crypto = require('crypto');
 
 class DonController {
     constructor() {
@@ -106,5 +107,66 @@ class DonController {
         });
       }
     }
+
+    async initiatePayment(req, res) {
+      try {
+          const { montant, userId } = req.body;
+
+          const orderId = crypto.randomBytes(16).toString('hex'); // ID unique
+          const paymentRequest = {
+              merchantId: process.env.CMI_MERCHANT_ID,
+              accessKey: process.env.CMI_ACCESS_KEY,
+              amount: montant,
+              currency: process.env.CMI_CURRENCY,
+              orderId,
+              returnUrl: process.env.CMI_RETURN_URL,
+          };
+
+          const queryString = Object.entries(paymentRequest)
+              .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+              .join('&');
+          const paymentUrl = `https://cmi-payments-gateway.com/pay?${queryString}`;
+
+          const don = new Don({
+              userId,
+              montant,
+              status: 'pending',
+              transactionId: null,
+          });
+          await this.collection.doc(orderId).set(don.toJSON());
+
+          return res.status(200).json({ paymentUrl });
+      } catch (error) {
+          console.error('Erreur lors de l\'initialisation du paiement :', error);
+          return res.status(500).json({ message: 'Erreur lors de l\'initialisation du paiement' });
+      }
+  }
+
+  async handleCallback(req, res) {
+      try {
+          const { orderId, status, transactionId } = req.body;
+
+          const donRef = this.collection.doc(orderId);
+          const donDoc = await donRef.get();
+
+          if (!donDoc.exists) {
+              return res.status(404).json({ message: 'Don introuvable' });
+          }
+
+          const updatedData = {
+              status: status === 'SUCCESS' ? 'paid' : 'failed',
+              transactionId,
+              updatedAt: new Date(),
+          };
+
+          await donRef.update(updatedData);
+
+          return res.status(200).json({ message: 'Statut du don mis à jour', status: updatedData.status });
+      } catch (error) {
+          console.error('Erreur lors du traitement du callback CMI :', error);
+          return res.status(500).json({ message: 'Erreur lors du traitement du callback' });
+      }
+  }
+
   }
   module.exports = new DonController();
