@@ -11,16 +11,6 @@
         "node_modules",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log"
-      ]
-    },
-    {
-      "source": "babrayan",
-      "codebase": "babrayan",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
       ]
