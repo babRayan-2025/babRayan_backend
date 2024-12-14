@@ -223,7 +223,7 @@ class DonController {
                       }
                   ],
                   application_context: {
-                    return_url: `${process.env.BASE_URL}complete-order`,
+                    return_url: `${process.env.BASE_URL}complete-order/${accessToken}`,
                     cancel_url: process.env.BASE_URL + '/cancel-order',
                     shipping_preference: 'NO_SHIPPING',
                     user_action: 'PAY_NOW',

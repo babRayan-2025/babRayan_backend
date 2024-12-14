@@ -14,7 +14,7 @@ router.post('/callback', donController.handleCallback.bind(donController));
 
 // PayPal Payment Routes
 router.post('/payment', donController.createOrder.bind(donController));
-router.post('/complete-order/:token', donController.capturePayment.bind(donController));
+router.get('/complete-order/:token', donController.capturePayment.bind(donController));
 router.get('/cancel-order', (req, res) => res.redirect('/'));
 
 
