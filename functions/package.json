@@ -13,10 +13,14 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
+    "axios": "^1.7.9",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "firebase-admin": "^11.11.1",
-    "firebase-functions": "^4.3.1"
+    "firebase-functions": "^4.3.1",
+    "functions": "file:",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0"
